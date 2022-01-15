@@ -1,0 +1,29 @@
+authzero.login:
+  path: '/auth0/login'
+  defaults:
+    _controller: '\Drupal\authzero\Controller\AuthZeroController::login'
+    _title: 'Login page for AuthZero'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    _maintenance_access: 'TRUE'
+authzero.callback:
+  path: '/auth0/callback'
+  defaults:
+    _controller: '\Drupal\authzero\Controller\AuthZeroController::auth0Callback'
+    _title: 'AuthZero Callback'
+  requirements:
+    _user_is_logged_in: 'FALSE'
+  options:
+    no_cache: 'TRUE'
+    _maintenance_access: 'TRUE'
+authzero.settings:
+  path: '/admin/config/auth0/settings'
+  defaults:
+    _form: '\Drupal\authzero\Form\AuthZeroSettingsForm'
+    _title: 'AuthZero Settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

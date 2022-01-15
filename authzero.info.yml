@@ -1,0 +1,6 @@
+name: 'Auth0 Drupal'
+type: module
+description: 'Integrates Drupal site with auth0.'
+core: 8.x
+core_version_requirement: ^8 || ^9
+version: 1.0.0-dev
