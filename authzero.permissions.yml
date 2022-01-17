@@ -1,0 +1,3 @@
+access authzero settings:
+  title: 'Access AuthZero settings'
+  description: 'Allow access to the AuthZero Settings form'

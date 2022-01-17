@@ -54,7 +54,7 @@ class AuthZeroController extends ControllerBase {
       $auth0->login(NULL, NULL, $this->authZeroService->getExtraParams($errorCode));
     }
     else {
-      return new RedirectResponse('/');
+      return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
     }
   }
 
@@ -73,21 +73,26 @@ class AuthZeroController extends ControllerBase {
    *   Any misconfiguration will throw the Auth0 Exception.
    */
   public function auth0Callback(Request $request): RedirectResponse {
-    $errorCode = $request->query->get('error') ?? 'unauthorized';
-    $errorDescription = $request->query->get('error_description');
-    if (!empty($errorDescription)) {
-      $errorCode = $this->authZeroService->getErrorCodeUserSoftBlocked($errorDescription);
-    }
-    try {
-      $auth0 = $this->authZeroService->getInstance();
-      $user = $auth0->getUser();
-      if (isset($user['email'])) {
-        /** @var \Drupal\user\UserInterface $omhUser */
-        $user = user_load_by_mail($user['email']);
+    if ($this->currentUser->isAnonymous()) {
+      $errorCode = $request->query->get('error') ?? 'unauthorized';
+      try {
+        $auth0 = $this->authZeroService->getInstance();
+        $user = $auth0->getUser();
+        if (isset($user['email'])) {
+          /** @var \Drupal\user\UserInterface $omhUser */
+          $user = user_load_by_mail($user['email']);
+          if (isset($user)) {
+            user_login_finalize($user);
+            return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
+          } else {
+            return $this->logoutUser('access denied');
+          }
+        }
+      } catch (\Exception $e) {
+        return $this->logoutUser('unauthorized');
       }
-    }
-    catch (\Exception $e) {
-      return $this->logoutUser('unauthorized');
+    } else {
+      return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
     }
   }
 

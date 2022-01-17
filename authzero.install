@@ -1,0 +1,23 @@
+<?php
+
+use Auth0\SDK\Auth0;
+
+/**
+ * Implements hook_requirements().
+ */
+function authzero_requirements($phase)
+{
+  if (in_array($phase, ['install', 'runtime'])) {
+    if (!class_exists(\Auth0\SDK\Auth0::class)) {
+      return [
+        'authzero' => [
+          'title' => 'AuthZero',
+          'version' => '^7.5x',
+          'description' => 'AuthZero module needs the official auth0 library auth0/auth0-php added as dependency.',
+          'severity' => REQUIREMENT_ERROR
+        ]
+      ];
+    }
+  }
+}
+

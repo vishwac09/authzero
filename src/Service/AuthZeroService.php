@@ -78,4 +78,22 @@ class AuthZeroService {
       $error
     );
   }
+  
+  /**
+   * Return the route to redirect to after login.
+   *
+   * @return string
+   */
+  public function getPostLoginRedirectLink(): string {
+    return $this->auth0->get('post_login_url');
+  }
+  
+  /**
+   * Determine if the Route needs to be overrriden.
+   *
+   * @return bool
+   */
+  public function overrideLogout() : bool {
+    return (bool)$this->auth0->get('post_login_url');
+  }
 }

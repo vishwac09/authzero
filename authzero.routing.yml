@@ -8,13 +8,22 @@ authzero.login:
   options:
     no_cache: 'TRUE'
     _maintenance_access: 'TRUE'
+authzero.logout:
+  path: '/auth0/logout'
+  defaults:
+    _controller: '\Drupal\authzero\Controller\AuthZeroController::logout'
+    _title: 'Logout Link'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'
 authzero.callback:
   path: '/auth0/callback'
   defaults:
     _controller: '\Drupal\authzero\Controller\AuthZeroController::auth0Callback'
     _title: 'AuthZero Callback'
   requirements:
-    _user_is_logged_in: 'FALSE'
+    _access: 'TRUE'
   options:
     no_cache: 'TRUE'
     _maintenance_access: 'TRUE'
@@ -24,6 +33,6 @@ authzero.settings:
     _form: '\Drupal\authzero\Form\AuthZeroSettingsForm'
     _title: 'AuthZero Settings'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'access authzero settings'
   options:
     _admin_route: TRUE

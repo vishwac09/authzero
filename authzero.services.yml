@@ -2,3 +2,8 @@ services:
   authzero.authzero_service:
     class: Drupal\authzero\Service\AuthZeroService
     arguments: ['@config.factory']
+  authzero.route_subscriber:
+    class: Drupal\authzero\Routing\RouteSubscriber
+    arguments: ['@authzero.authzero_service']
+    tags:
+      - { name: event_subscriber, priority: 150 }
