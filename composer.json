@@ -1,5 +1,5 @@
 {
-    "name": "drupal/authzero",
+    "name": "vishwac09/authzero",
     "description": "Integrate Drupal 8/9 website with the Auth0 Single Sign-On (SSO) platform.",
     "type": "drupal-module",
     "license": "MIT",
