@@ -71,7 +71,7 @@ class AuthZeroService {
    */
   public function getLogoutLink(string $error = NULL): string {
     return sprintf(
-      'https://%s/v2/logout?client_id=%s&federated=true&returnTo=%s?error=%s',
+      'https://%s/v2/logout?client_id=%s&federated=true&returnTo=%s?error_description=%s',
       $this->auth0->get('domain'),
       $this->auth0->get('client_id'),
       \Drupal::request()->getSchemeAndHttpHost() . '/auth0/login',

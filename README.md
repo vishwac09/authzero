@@ -33,7 +33,7 @@ Installing from Github requires Composer ([installation instructions](https://ge
 
 ```bash
 $ cd PATH/TO/DRUPAL/ROOT/modules
-$ git clone https://github.com/auth0/auth0-drupal.git auth0
+$ git clone https://github.com/vishwac09/authzero.git authzero
 ```
 
 ### Install from Drupal.org with Composer

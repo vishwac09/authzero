@@ -47,9 +47,13 @@ class AuthZeroController extends ControllerBase {
    *   Any misconfiguration will throw the Auth0 Exception.
    */
   public function login(Request $request) {
+    // Check if the current logged-in user is not anonymous.
     if ($this->currentUser->isAnonymous()) {
+      // Check the error query param is set, if yes send it to
+      // auth0 universal login page in URL.
       $query = $request->query->get('error');
       $errorCode = $query ?? '';
+      // Get the instance of Auth0.
       $auth0 = $this->authZeroService->getInstance();
       $auth0->login(NULL, NULL, $this->authZeroService->getExtraParams($errorCode));
     }
@@ -79,17 +83,18 @@ class AuthZeroController extends ControllerBase {
         $auth0 = $this->authZeroService->getInstance();
         $user = $auth0->getUser();
         if (isset($user['email'])) {
-          /** @var \Drupal\user\UserInterface $omhUser */
+          /** @var \Drupal\user\UserInterface $user */
           $user = user_load_by_mail($user['email']);
-          if (isset($user)) {
+          if (!empty($user)) {
             user_login_finalize($user);
+            \Drupal::messenger()->addStatus('Successfully logged in ' . $user->getEmail());
             return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
           } else {
-            return $this->logoutUser('access denied');
+            return $this->logoutUser('access_denied');
           }
         }
       } catch (\Exception $e) {
-        return $this->logoutUser('unauthorized');
+        return $this->logoutUser($errorCode);
       }
     } else {
       return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
@@ -97,7 +102,7 @@ class AuthZeroController extends ControllerBase {
   }
 
   /**
-   * Handles user logout, from OMH as well as Auth0.
+   * Handles user logout, from Drupal as well as Auth0.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
    *   Logout user from drupal and redirect to auth0 logout.
@@ -108,7 +113,7 @@ class AuthZeroController extends ControllerBase {
       return $this->logoutUser();
     }
     else {
-      return new RedirectResponse('/');
+      return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
     }
   }
 

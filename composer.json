@@ -1,0 +1,13 @@
+{
+    "name": "drupal/authzero",
+    "description": "Integrate Drupal 8/9 website with the Auth0 Single Sign-On (SSO) platform.",
+    "type": "drupal-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vishwa Chikate",
+            "email": "vishwa.chikate@gmail.com"
+        }
+    ],
+    "require": {}
+}
