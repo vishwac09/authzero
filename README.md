@@ -16,6 +16,7 @@ There was a need to include similar functionality in one of the project, but as 
 
 - [Dependencies](#Dependencies)
 - [Install](#Install)
+- [Config](#Config)
 
 ### Dependencies
 The following PHP library is used to access the Auth0 authentication and management API's.
@@ -23,9 +24,9 @@ The following PHP library is used to access the Auth0 authentication and managem
 composer require auth0/auth0-php:7.5
 ```
 
-### Install
+## Install
 
-#### Github
+#### Get from Github
 
 Installing from Github requires Composer ([installation instructions](https://getcomposer.org/doc/00-intro.md)).
 
@@ -36,9 +37,12 @@ $ cd PATH/TO/DRUPAL/ROOT/modules
 $ git clone https://github.com/vishwac09/authzero.git authzero
 ```
 
-### Install from Drupal.org with Composer
+#### Get from Packagist with Composer
 
 1. From the root of your Drupal project run:
 ```bash
-# not listed under packagist still #pending
-$ composer require -------
+$ composer require vishwac09/authzero
+```
+
+## Config
+The modules provide with a config form navigate to SITE_DOMAIN/admin/config/auth0/settings and enter all the needed values.
