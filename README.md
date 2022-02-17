@@ -45,4 +45,4 @@ $ composer require vishwac09/authzero
 ```
 
 ## Config
-The modules provide with a config form navigate to SITE_DOMAIN/admin/config/auth0/settings and enter all the needed values.
+The modules provide with a config form navigate to https://SITE_DOMAIN/admin/config/auth0/settings and enter all the needed values.

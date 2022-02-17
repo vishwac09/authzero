@@ -3,6 +3,7 @@
 namespace Drupal\authzero\Service;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+
 use Auth0\SDK\Auth0;
 
 /**
