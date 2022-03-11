@@ -1,22 +1,28 @@
 <?php
 
-use Auth0\SDK\Auth0;
+use Auth0\SDK\API\Helpers\ApiClient;
 
 /**
  * Implements hook_requirements().
  */
-function authzero_requirements($phase)
-{
+function authzero_requirements($phase) {
   if (in_array($phase, ['install', 'runtime'])) {
-    if (!class_exists(\Auth0\SDK\Auth0::class)) {
-      return [
-        'authzero' => [
-          'title' => 'AuthZero',
-          'version' => '^7.5x',
-          'description' => 'AuthZero module needs the official auth0 library auth0/auth0-php added as dependency.',
-          'severity' => REQUIREMENT_ERROR
-        ]
-      ];
+
+    $authzero = [
+      'title' => 'AuthZero',
+      'version' => '^7.x',
+      'description' => 'AuthZero module needs the official auth0/auth0-php:7.x library installed. Please check the README file.',
+      'severity' => REQUIREMENT_ERROR
+    ];
+
+    // This check if the library is added or not.
+    if (!class_exists(ApiClient::class)) {
+      return ['authzero' => $authzero];
+    }
+    else if (ApiClient::API_VERSION[0] !== '7') {
+      // Else check the installed version number of the library as it is Installed.
+      $authzero['description'] = 'Authzero module needs 7.x version of the auth0/auth0-php library.';
+      return ['authzero' => $authzero];
     }
   }
 }
