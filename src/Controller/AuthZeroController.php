@@ -2,6 +2,7 @@
 
 namespace Drupal\authzero\Controller;
 
+use Drupal\authzero\AuthZeroInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Handler for Auth0 login/logout callbacks.
  */
-class AuthZeroController extends ControllerBase {
+class AuthZeroController extends ControllerBase implements AuthZeroInterface {
 
   /**
    * Instance of Drupal\Core\Session\AccountProxy.
@@ -38,13 +39,7 @@ class AuthZeroController extends ControllerBase {
   }
 
   /**
-   * Handles redirecting to auth0 login page.
-   *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The request.
-   *
-   * @throws \Auth0\SDK\Exception\CoreException
-   *   Any misconfiguration will throw the Auth0 Exception.
+   * {@inheritDoc}
    */
   public function login(Request $request) {
     // Check if the current logged-in user is not anonymous.
@@ -63,18 +58,7 @@ class AuthZeroController extends ControllerBase {
   }
 
   /**
-   * Call back function, invoked when user is authenticated by Auth0.
-   *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The request.
-   *
-   * @return Symfony\Component\HttpFoundation\RedirectResponse
-   *   The location to redirect after login.
-   *
-   * @throws \Auth0\SDK\Exception\ApiException
-   *   Any misconfiguration will throw the Auth0 Exception.
-   * @throws \Auth0\SDK\Exception\CoreException
-   *   Any misconfiguration will throw the Auth0 Exception.
+   * {@inheritDoc}
    */
   public function auth0Callback(Request $request): RedirectResponse {
     if ($this->currentUser->isAnonymous()) {
@@ -102,10 +86,7 @@ class AuthZeroController extends ControllerBase {
   }
 
   /**
-   * Handles user logout, from Drupal as well as Auth0.
-   *
-   * @return \Symfony\Component\HttpFoundation\RedirectResponse
-   *   Logout user from drupal and redirect to auth0 logout.
+   * {@inheritDoc}
    */
   public function logout(): RedirectResponse {
     if (!empty($this->currentUser->getEmail())) {
@@ -118,10 +99,7 @@ class AuthZeroController extends ControllerBase {
   }
 
   /**
-   * Force user to logout.
-   *
-   * @return Symfony\Component\HttpFoundation\TrustedRedirectResponse
-   *   Redirect to Auth0 logout link.
+   * {@inheritDoc}
    */
   public function logoutUser($error = NULL): TrustedRedirectResponse {
     return new TrustedRedirectResponse($this->authZeroService->getLogoutLink($error));
