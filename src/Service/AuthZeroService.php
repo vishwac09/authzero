@@ -44,10 +44,9 @@ class AuthZeroService {
       'protocol' => 'oauth2',
     ]);
   }
-  
+
   /**
-   * Returns list of Extra params that needs to be sent to the universal
-   * login page.
+   * List of params that needs to be sent to the auth0 universal login page.
    *
    * @param string|null $error
    *   The error message code.
@@ -79,22 +78,25 @@ class AuthZeroService {
       $error
     );
   }
-  
+
   /**
    * Return the route to redirect to after login.
    *
    * @return string
+   *   Redirect to the configured url after logging in.
    */
   public function getPostLoginRedirectLink(): string {
     return $this->auth0->get('post_login_url');
   }
-  
+
   /**
-   * Determine if the Route needs to be overrriden.
+   * Determine if the Route needs to be overridden.
    *
    * @return bool
+   *   Return true
    */
   public function overrideLogout() : bool {
-    return (bool)$this->auth0->get('post_login_url');
+    return (bool) $this->auth0->get('post_login_url');
   }
+
 }

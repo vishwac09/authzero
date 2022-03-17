@@ -73,14 +73,17 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
             user_login_finalize($user);
             \Drupal::messenger()->addStatus('Successfully logged in ' . $user->getEmail());
             return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
-          } else {
+          }
+          else {
             return $this->logoutUser('access_denied');
           }
         }
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         return $this->logoutUser($errorCode);
       }
-    } else {
+    }
+    else {
       return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
     }
   }

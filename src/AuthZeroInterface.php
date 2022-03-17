@@ -53,4 +53,5 @@ interface AuthZeroInterface {
    *   Redirect to Auth0 logout link.
    */
   public function logoutUser($error = NULL): TrustedRedirectResponse;
+
 }
