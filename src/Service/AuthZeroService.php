@@ -96,7 +96,7 @@ class AuthZeroService {
    *   Return true
    */
   public function overrideLogout() : bool {
-    return (bool) $this->auth0->get('post_login_url');
+    return (bool) $this->auth0->get('override_logout');
   }
 
 }
