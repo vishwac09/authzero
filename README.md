@@ -41,7 +41,7 @@ $ git clone https://github.com/vishwac09/authzero.git authzero
 
 1. From the root of your Drupal project run:
 ```bash
-$ composer require vishwac09/authzero:1.0.1
+$ composer require vishwac09/authzero:1.0.2
 ```
 
 ## Config

@@ -4,14 +4,13 @@ namespace Drupal\authzero\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * AuthZero Settings Form class.
  */
 class AuthZeroSettingsForm extends ConfigFormBase {
-  
+
   /**
    * Instance of the Drupal\Core\Routing\RouteProvider.
    *
@@ -34,7 +33,7 @@ class AuthZeroSettingsForm extends ConfigFormBase {
   public function getFormId(): string {
     return 'authzero_settings_form';
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -55,21 +54,21 @@ class AuthZeroSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Domain'),
       '#description' => $this->t('Domain added in the Application page on auth0 platform.'),
       '#default_value' => $config->get('domain'),
-      '#required' => TRUE
+      '#required' => TRUE,
     ];
     $form['client_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Client Id'),
       '#description' => $this->t('Client Id associated with the Application.'),
       '#default_value' => $config->get('client_id'),
-      '#required' => TRUE
+      '#required' => TRUE,
     ];
     $form['client_secret'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Client Secret'),
       '#description' => $this->t('Client Secret associated with the Application.'),
       '#default_value' => $config->get('client_secret'),
-      '#required' => TRUE
+      '#required' => TRUE,
     ];
     $form['redirect_uri'] = [
       '#type' => 'textfield',
@@ -83,7 +82,7 @@ class AuthZeroSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Route name'),
       '#description' => $this->t('Name of the route to redirect after login.'),
       '#default_value' => $config->get('post_login_route') ?? '<front>',
-      '#required' => TRUE
+      '#required' => TRUE,
     ];
     $form['override_logout'] = [
       '#type' => 'checkbox',
@@ -99,25 +98,25 @@ STR,
 </div>
 STR,
       '#default_value' => $config->get('override_logout') ?? 0,
-      '#required' => FALSE
+      '#required' => FALSE,
     ];
     return parent::buildForm($form, $form_state);
   }
-  
+
   /**
    * {@inheritDoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state)
-  {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
     $postLoginRoute = $form_state->getValue('post_login_route');
     try {
       $this->routeProvider->getRouteByName($postLoginRoute);
-    } catch (\Exception $e) {
-      $form_state->setErrorByName('post_login_route', $this->t($e->getMessage()));
+    }
+    catch (\Exception $e) {
+      $form_state->setErrorByName('post_login_route', $e->getMessage());
     }
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -136,4 +135,5 @@ STR,
       ->set('override_logout', $form_state->getValue('override_logout'))
       ->save();
   }
+
 }

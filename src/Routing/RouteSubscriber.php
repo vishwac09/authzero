@@ -13,30 +13,30 @@ use Symfony\Component\Routing\RouteCollection;
  * Listens to the dynamic route events.
  */
 class RouteSubscriber extends RouteSubscriberBase {
-  
+
   /**
    * Instance of Drupal\auth0_drupal\Service\AuthZeroService.
    *
    * @var \Drupal\authzero\Service\AuthZeroService
    */
   protected $authZeroService;
-  
+
   /**
    * Defining constructor for Auth0.
    *
-   * @param \Drupal\authzero\Service\AuthZeroService
+   * @param \Drupal\authzero\Service\AuthZeroService $authZeroService
    *   The AuthZero Service object.
    */
   public function __construct(AuthZeroService $authZeroService) {
     $this->authZeroService = $authZeroService;
   }
-  
+
   /**
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection) {
-    
-    if ($route = $collection->get('user.logout')) {
+
+    if ($route = $collection->get('user.logout') && $this->authZeroService->overrideLogout()) {
       $route->setDefaults(
         [
           '_controller' => '\Drupal\authzero\Controller\AuthZeroController::logout',
@@ -49,5 +49,5 @@ class RouteSubscriber extends RouteSubscriberBase {
       );
     }
   }
-  
+
 }
