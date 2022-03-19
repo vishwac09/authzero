@@ -49,6 +49,7 @@ class AuthZeroServiceTest extends UnitTestCase {
     $this->config->get('client_secret')->willReturn('TEST_CLIENT_SECRET');
     $this->config->get('callback_url')->willReturn('TEST_CALLBACK_URL');
     $this->config->get('post_login_url')->willReturn('/node');
+    $this->config->get('override_logout')->willReturn(TRUE);
     // Initialize the ConfigFactoryInterface mock.
     $this->configFactory = $this->prophesize(ConfigFactoryInterface::class);
     // Will return instance of Immutable config.
@@ -58,12 +59,12 @@ class AuthZeroServiceTest extends UnitTestCase {
 
     $container = new ContainerBuilder();
     \Drupal::setContainer($container);
-    $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
-    $request->expects($this->any())->method('getSchemeAndHttpHost')->willReturn('https://drupal.site');
+    $request = $this->prophesize(Request::class);
+    $request->getSchemeAndHttpHost()->willReturn('https://drupal.site');
 
-    $requestStack = $this->getMockBuilder(RequestStack::class)->disableOriginalConstructor()->getMock();
-    $requestStack->expects($this->any())->method('getCurrentRequest')->willReturn($request);
-    $container->set('request_stack', $requestStack);
+    $requestStack = $this->prophesize(RequestStack::class);
+    $requestStack->getCurrentRequest()->willReturn($request->reveal());
+    $container->set('request_stack', $requestStack->reveal());
   }
 
   /**
