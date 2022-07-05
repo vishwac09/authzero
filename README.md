@@ -10,7 +10,9 @@ Auth0 team announced the end of life of their official [Drupal 8 module](https:/
 
 There was a need to include similar functionality in one of the project, but as the official module is deprecated so decided to write this module and make it public.
 
-> I would request developers to download it and then customize it as per the projects need. There wont be any security audits, third party teting for this module hence treat it similar to a custom module which you would normally develop for your project.
+> I would request developers to download the module and then customize it as per the projects need. There wont be any security audits, third party teting for this module hence treat it similar to a custom module which you would normally develop for your project.
+
+If you wish to go through the working of this module or how Auth0 SSO works check my block on [Drupal 8/9: Integrating with auth0](https://medium.com/@vishwa.chikate/integrating-drupal-with-auth0-2074bda2e22) on Medium.
 
 # Getting Started
 
@@ -41,7 +43,7 @@ $ git clone https://github.com/vishwac09/authzero.git authzero
 
 #### Get from Packagist with Composer
 
-1. From the root of your Drupal project run:
+1. From the root of your Drupal project run. Link to [Packagist](https://packagist.org/packages/vishwac09/authzero)
 ```bash
 $ composer require vishwac09/authzero:1.0.3
 ```
