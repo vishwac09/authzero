@@ -11,8 +11,8 @@ function authzero_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $ro
         <p>Integrate Drupal 8/9 website with the Auth0 Single Sign-On (SSO) platform.</p>
         <p>Auth0 team announced the end of life of their official <a target="_blank" href="https://www.drupal.org/project/auth0">Drupal 8 module</a>.The <a target="_blank" href="https://github.com/auth0-community/auth0-drupal">Github Repository</a>
          would be available until March 8, 2022 further, it will also be removed. Alternate suggested by the auth0 team is to use the <a target="_blank" href="https://www.drupal.org/project/openid_connect">OpenID Connect / OAuth client</a>
-         Drupal module, but as of Jan 2022 it does not have support for the Auth0 IDP.</p>
-        <p>There was a need to include similar functionality in one of the project, but as the official module is deprecated so decided to write this module and make it public</p>
+         Drupal module.</p>
+        <p>There was a need to include similar functionality in one of the project, but as the official module is deprecated so decided to write this module and make it public.</p>
 STR;
   }
 }
