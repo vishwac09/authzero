@@ -4,6 +4,7 @@ namespace Drupal\authzero\Controller;
 
 use Drupal\authzero\AuthZeroInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,6 +16,13 @@ use Symfony\Component\HttpFoundation\Request;
 class AuthZeroController extends ControllerBase implements AuthZeroInterface {
 
   /**
+   * Instance of Drupal\auth0_drupal\Service\AuthZeroService.
+   *
+   * @var \Drupal\authzero\Service\AuthZeroService
+   */
+  protected $authZeroService;
+
+  /**
    * Instance of Drupal\Core\Session\AccountProxy.
    *
    * @var \Drupal\Core\Session\AccountProxy
@@ -22,11 +30,11 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
   protected $currentUser;
 
   /**
-   * Instance of Drupal\auth0_drupal\Service\AuthZeroService.
+   * Instance of \Drupal\Core\Messenger\Messenger.
    *
-   * @var \Drupal\authzero\Service\AuthZeroService
+   * @var \Drupal\Core\Messenger\Messenger
    */
-  protected $authZeroService;
+  protected $messenger;
 
   /**
    * {@inheritdoc}
@@ -35,6 +43,7 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
     $instance = parent::create($container);
     $instance->currentUser = $container->get('current_user');
     $instance->authZeroService = $container->get('authzero.authzero_service');
+    $instance->messenger = $container->get('messenger');
     return $instance;
   }
 
@@ -67,11 +76,12 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
         $auth0 = $this->authZeroService->getInstance();
         $user = $auth0->getUser();
         if (isset($user['email'])) {
+          \Drupal::moduleHandler()->invokeAll('authzero_pre_validate_user', [$user]);
           /** @var \Drupal\user\UserInterface $user */
           $user = user_load_by_mail($user['email']);
           if (!empty($user)) {
             user_login_finalize($user);
-            \Drupal::messenger()->addStatus('Successfully logged in ' . $user->getEmail());
+            $this->messenger->addStatus('Successfully logged in ' . $user->getEmail());
             return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
           }
           else {
