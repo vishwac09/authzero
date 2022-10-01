@@ -68,8 +68,8 @@ The modules provide with a config form navigate to https://SITE_DOMAIN/admin/con
 ## Versions
 
 Stable releases for the module -:
-    - [1.0.x](https://github.com/vishwac09/authzero/releases/tag/1.0.5)
-    - [2.0.x](https://github.com/vishwac09/authzero/releases/tag/1.0.5)
+- [1.0.x](https://github.com/vishwac09/authzero/releases/tag/1.0.5)
+- [2.0.x](https://github.com/vishwac09/authzero/releases/tag/1.0.5)
 
 ### 1.0.x
 
