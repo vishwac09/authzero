@@ -63,7 +63,7 @@ The modules provide with a config form navigate to https://SITE_DOMAIN/admin/con
 ## Drupal Enable
 
 1. Make sure the required library (auth0/auth0-php:7.x) is added to the projects composer.json before enabling this module.
-2. All additional Oauth/openid modules must be uninstalled in order to use this module with no conflicts.
+2. All other OAuth/openid modules must be uninstalled in order to use this module with no conflicts.
 
 ## Versions
 
@@ -77,7 +77,7 @@ Version 1.0.x works only with **auth0/auth0-php:7.x** PHP library, so make sure 
 
 ### 2.0.x
 
-Version 2.0.x works only with **auth0/auth0-php:8.x** PHP library, so make sure you download the correct version when working with this module. Additionally this version of authzero module also has a custom Drupal hook implement which is invoked just before the module logs in the user.
+Version 2.0.x works with **auth0/auth0-php:7.x** PHP library, so make sure you download the correct version when working with this module. Additionally this version of authzero module also has a custom Drupal hook implementation which is invoked just before the module/code logs in the user.
 
 Hook Details -:
 
@@ -120,6 +120,6 @@ function hook_authzero_pre_validate_user(array $authUserDetails = []) {
 }
 ```
 
-Use-case the module does not logins those user which does not have account created in the site. With the above hook, you can accomplish the same functionality.
+The module does not login any users who do not have an account on the site. You can achieve the same functionality using the hook mentioned above.
 
-Implement the hook in any your custom module, and write the code to create the user account.
+Implement the hook in any custom module and write the code to create the user account.
