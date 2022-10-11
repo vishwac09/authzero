@@ -36,17 +36,20 @@ class RouteSubscriber extends RouteSubscriberBase {
    */
   protected function alterRoutes(RouteCollection $collection) {
 
-    if ($route = $collection->get('user.logout') && $this->authZeroService->overrideLogout()) {
-      $route->setDefaults(
-        [
-          '_controller' => '\Drupal\authzero\Controller\AuthZeroController::logout',
-        ]
-      );
-      $route->setOptions(
-        [
-          'no_cache' => 'TRUE',
-        ]
-      );
+    if ($collection->get('user.logout') && $this->authZeroService->overrideLogout()) {
+      $route = $collection->get('user.logout');
+      if (is_object($route)) {
+        $route->setDefaults(
+          [
+            '_controller' => '\Drupal\authzero\Controller\AuthZeroController::logout',
+          ]
+        );
+        $route->setOptions(
+          [
+            'no_cache' => 'TRUE',
+          ]
+        );
+      }
     }
   }
 

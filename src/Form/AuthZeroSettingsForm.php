@@ -86,7 +86,7 @@ class AuthZeroSettingsForm extends ConfigFormBase {
     ];
     $form['override_logout'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Override default logout action?'),
+      '#title' => $this->t('Override default logout action ?'),
       '#description' => <<<STR
         Need to logout user from Auth0 platform as well as Drupal.</br>
         Checking this will override the normal url callback when clicked on logout.
