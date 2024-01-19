@@ -77,6 +77,13 @@ class AuthZeroSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('redirect_uri') ?? \Drupal::request()->getSchemeAndHttpHost() . '/auth0/callback',
       '#required' => TRUE,
     ];
+    $form['cookie_secret'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Cookie Secret'),
+      '#default_value' => $config->get('cookie_secret'),
+      '#description' => $this->t('The secret used to derive an encryption key for the user identity in a session cookie and to sign the transient cookies used by the login callback.'),
+      '#required' => TRUE,
+    ];
     $form['post_login_route'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Route name'),
@@ -130,6 +137,7 @@ STR,
       ->set('client_id', $form_state->getValue('client_id'))
       ->set('client_secret', $form_state->getValue('client_secret'))
       ->set('callback_url', $form_state->getValue('redirect_uri'))
+      ->set('cookie_secret', $form_state->getValue('cookie_secret'))
       ->set('post_login_route', $form_state->getValue('post_login_route'))
       ->set('post_login_url', $postLoginRoute->getPath())
       ->set('override_logout', $form_state->getValue('override_logout'))
