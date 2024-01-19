@@ -37,10 +37,11 @@ class AuthZeroService {
   public function getInstance(): Auth0 {
     return new Auth0([
       'domain' => $this->auth0->get('domain'),
-      'client_id' => $this->auth0->get('client_id'),
-      'client_secret' => $this->auth0->get('client_secret'),
-      'redirect_uri' => $this->auth0->get('callback_url'),
-      'scope' => 'openid profile email',
+      'clientId' => $this->auth0->get('client_id'),
+      'clientSecret' => $this->auth0->get('client_secret'),
+      'redirectUri' => $this->auth0->get('callback_url'),
+      'cookieSecret' => $this->auth0->get('cookie_secret'),
+      'scope' => ["openid", "profile", "email"],
       'protocol' => 'oauth2',
     ]);
   }
