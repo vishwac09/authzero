@@ -1,7 +1,7 @@
 services:
   authzero.authzero_service:
     class: Drupal\authzero\Service\AuthZeroService
-    arguments: ['@config.factory']
+    arguments: ['@state']
   authzero.route_subscriber:
     class: Drupal\authzero\Routing\RouteSubscriber
     arguments: ['@authzero.authzero_service']

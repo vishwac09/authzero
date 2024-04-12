@@ -3,8 +3,10 @@
 namespace Drupal\authzero\Controller;
 
 use Drupal\authzero\AuthZeroInterface;
+use Drupal\authzero\Service\AuthZeroService;
+
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Messenger\Messenger;
+use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -20,7 +22,7 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
    *
    * @var \Drupal\authzero\Service\AuthZeroService
    */
-  protected $authZeroService;
+  protected AuthZeroService $authZeroService;
 
   /**
    * Instance of Drupal\Core\Session\AccountProxy.
@@ -30,11 +32,11 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
   protected $currentUser;
 
   /**
-   * Instance of \Drupal\Core\Messenger\Messenger.
+   * Instance of \Drupal\Core\Logger\LoggerChannelFactory.
    *
-   * @var \Drupal\Core\Messenger\Messenger
+   * @var Drupal\Core\Logger\LoggerChannelFactory
    */
-  protected $messenger;
+  protected LoggerChannelFactory $logger;
 
   /**
    * {@inheritdoc}
@@ -43,7 +45,7 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
     $instance = parent::create($container);
     $instance->currentUser = $container->get('current_user');
     $instance->authZeroService = $container->get('authzero.authzero_service');
-    $instance->messenger = $container->get('messenger');
+    $instance->logger = $container->get('logger.factory');
     return $instance;
   }
 
@@ -59,7 +61,10 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
       $errorCode = $query ?? '';
       // Get the instance of Auth0.
       $auth0 = $this->authZeroService->getInstance();
-      $auth0->login(NULL, NULL, $this->authZeroService->getExtraParams($errorCode));
+      $additionalParams = $this->authZeroService->getExtraParams($errorCode);
+      return new TrustedRedirectResponse(
+        $auth0->login(NULL, $additionalParams),
+      );
     }
     else {
       return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
@@ -70,10 +75,12 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
    * {@inheritDoc}
    */
   public function auth0Callback(Request $request): RedirectResponse {
+    // When the user serssion has not been started in drupal.
     if ($this->currentUser->isAnonymous()) {
       $errorCode = $request->query->get('error') ?? 'unauthorized';
       try {
         $auth0 = $this->authZeroService->getInstance();
+        $auth0->exchange();
         $user = $auth0->getUser();
         if (isset($user['email'])) {
           \Drupal::moduleHandler()->invokeAll('authzero_pre_validate_user', [$user]);
@@ -81,7 +88,7 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
           $user = user_load_by_mail($user['email']);
           if (!empty($user)) {
             user_login_finalize($user);
-            $this->messenger->addStatus('Successfully logged in ' . $user->getEmail());
+            $this->logger->get('authzero')->info("User {$user->getInitialEmail()} successfully logged in.");
             return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
           }
           else {
@@ -115,7 +122,11 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
    * {@inheritDoc}
    */
   public function logoutUser($error = NULL): TrustedRedirectResponse {
-    return new TrustedRedirectResponse($this->authZeroService->getLogoutLink($error));
+    // Get the instance of Auth0.
+    $auth0 = $this->authZeroService->getInstance();
+    $additionalParams = $this->authZeroService->getExtraParams($error);
+    $returnToUrl = $this->authZeroService->getPostLogoutRedirectLink();
+    return new TrustedRedirectResponse($auth0->logout($returnToUrl, $additionalParams));
   }
 
 }

@@ -2,9 +2,9 @@
 
 namespace Drupal\authzero\Service;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
-
 use Auth0\SDK\Auth0;
+use Auth0\SDK\Configuration\SdkConfiguration;
+use Drupal\Core\State\StateInterface;
 
 /**
  * Set of utility functions.
@@ -12,37 +12,30 @@ use Auth0\SDK\Auth0;
 class AuthZeroService {
 
   /**
-   * The authZero Settings.
+   * The state interface where authzero settings are stored.
    *
-   * @var array
+   * @var \Drupal\Core\State\StateInterface
    */
-  protected $auth0;
+  protected StateInterface $authzeroSettings;
 
   /**
    * Defining constructor for Auth0.
    *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   * @param \Drupal\Core\State\StateInterface $state
    *   The config factory object.
    */
-  public function __construct(ConfigFactoryInterface $config_factory) {
-    $this->auth0 = $config_factory->get('authzero.settings');
+  public function __construct(StateInterface $state) {
+    $this->authzeroSettings = $state;
   }
 
   /**
-   * Returns the Auth0 instance.
+   * Return the domain of the application setup in authzero setting form.
    *
-   * @throws \Auth0\SDK\Exception\CoreException
-   *   The Auth0 exception.
+   * @return string|null
+   *   The domain of the application.
    */
-  public function getInstance(): Auth0 {
-    return new Auth0([
-      'domain' => $this->auth0->get('domain'),
-      'client_id' => $this->auth0->get('client_id'),
-      'client_secret' => $this->auth0->get('client_secret'),
-      'redirect_uri' => $this->auth0->get('callback_url'),
-      'scope' => 'openid profile email',
-      'protocol' => 'oauth2',
-    ]);
+  public function getDomain(): string {
+    return $this->authzeroSettings->get('domain');
   }
 
   /**
@@ -61,22 +54,20 @@ class AuthZeroService {
   }
 
   /**
-   * User logout Link, for auth0.
+   * Returns the Auth0 instance.
    *
-   * @param string|null $error
-   *   The error messages.
-   *
-   * @return string
-   *   The logout link.
+   * @throws \Auth0\SDK\Exception\CoreException
+   *   The Auth0 exception.
    */
-  public function getLogoutLink(string $error = NULL): string {
-    return sprintf(
-      'https://%s/v2/logout?client_id=%s&federated=true&returnTo=%s?error_description=%s',
-      $this->auth0->get('domain'),
-      $this->auth0->get('client_id'),
-      \Drupal::request()->getSchemeAndHttpHost() . '/auth0/login',
-      $error
+  public function getInstance(): Auth0 {
+    $configuration = new SdkConfiguration(
+      domain: $this->authzeroSettings->get('domain'),
+      clientId: $this->authzeroSettings->get('client_id'),
+      clientSecret: $this->authzeroSettings->get('client_secret'),
+      redirectUri: $this->authzeroSettings->get('callback_url'),
+      cookieSecret: $this->authzeroSettings->get('cookie_secret')
     );
+    return new Auth0($configuration);
   }
 
   /**
@@ -86,7 +77,17 @@ class AuthZeroService {
    *   Redirect to the configured url after logging in.
    */
   public function getPostLoginRedirectLink(): string {
-    return $this->auth0->get('post_login_url');
+    return $this->authzeroSettings->get('post_login_url');
+  }
+
+  /**
+   * Return the url to redirect to after logout.
+   *
+   * @return string
+   *   Redirect to the configured url after lgging out.
+   */
+  public function getPostLogoutRedirectLink(): string {
+    return $this->authzeroSettings->get('post_logout_url');
   }
 
   /**
@@ -96,7 +97,7 @@ class AuthZeroService {
    *   Return true
    */
   public function overrideLogout() : bool {
-    return (bool) $this->auth0->get('override_logout');
+    return (bool) $this->authzeroSettings->get('override_logout');
   }
 
 }

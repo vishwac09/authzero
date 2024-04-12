@@ -19,7 +19,7 @@ class RouteSubscriber extends RouteSubscriberBase {
    *
    * @var \Drupal\authzero\Service\AuthZeroService
    */
-  protected $authZeroService;
+  protected AuthZeroService $authZeroService;
 
   /**
    * Defining constructor for Auth0.

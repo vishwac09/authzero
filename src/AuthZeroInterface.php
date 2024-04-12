@@ -3,8 +3,8 @@
 namespace Drupal\authzero;
 
 use Drupal\Core\Routing\TrustedRedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides an Interface to handle user authentication via auth0 IDP.
