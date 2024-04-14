@@ -39,8 +39,9 @@ Version 3.0.0 is a complete rewrite / new implementation of the authzero drupal 
 
 #### <ins>Important Notes when migrating to 3.0.0.</ins>
 1. Backup all the credentials.
-2. Uninstall the module.
-3. Install the module and add the credentials again.
+2. Uninstall the module older version any of "__v2.0.0__", "__v1.0.5__".
+3. Remove the "auth0/auth0-php:7.5" version library.
+4. Install the module and add the required info again.
 
 
 ## Install
