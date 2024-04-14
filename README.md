@@ -29,7 +29,7 @@ Active releases and their compatibility.
 
 ## Table of Contents
 
-- [Upgrading to 3.0.0](#Upgrading-to-3.0.0)
+- [Upgrading to 3.0.0](#upgrading-to-300)
 - [Install](#Install)
 - [Module Settings](#Module-Settings)
 - [Versions](#Versions)
