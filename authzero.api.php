@@ -12,7 +12,6 @@ use Drupal\user\Entity\User;
  * @{
  */
 
-
 /**
  * Hook invoked just before authzero module validates the user.
  *
@@ -34,7 +33,7 @@ use Drupal\user\Entity\User;
  *     'amr' => [],
  *     'sid' => 8FfPt9kf8aQpgKIZXvEXIcMG0tkXfWM1
  *     'nonce' => ed02edcbcefb71a2902d65f9ab729a14
- *   ];
+ *   ];.
  */
 function hook_authzero_pre_validate_user(array $authUserDetails = []) {
   if (isset($authUserDetails['email']) && !empty($authUserDetails['email'])) {
@@ -45,7 +44,7 @@ function hook_authzero_pre_validate_user(array $authUserDetails = []) {
     $user->setUsername($authUserDetails['name']);
     $user->set("init", 'mail');
     $user->activate();
-    //Save user account
+    // Save user account.
     $user->save();
   }
 }

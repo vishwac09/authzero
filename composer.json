@@ -1,6 +1,6 @@
 {
     "name": "vishwac09/authzero",
-    "description": "Integrate Drupal 8/9 website with the Auth0 Single Sign-On (SSO) platform.",
+    "description": "Integrate Drupal 9/10 website with the Auth0 Single Sign-On (SSO) platform.",
     "type": "drupal-module",
     "license": "MIT",
     "authors": [
@@ -9,5 +9,12 @@
             "email": "vishwa.chikate@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "auth0/auth0-php": "~8.10.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    }
 }

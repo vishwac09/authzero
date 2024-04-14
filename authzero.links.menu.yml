@@ -1,6 +1,6 @@
 authzero.settings:
   title: 'AuthZero'
   route_name: authzero.settings
-  description: "AuthZero(0) settings"
+  description: "Configure settings to integrate with Auth0 SSO platform."
   parent: system.admin_config_system
   weight: 99

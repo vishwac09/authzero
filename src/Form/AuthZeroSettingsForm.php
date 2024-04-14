@@ -2,30 +2,38 @@
 
 namespace Drupal\authzero\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\Messenger;
+use Drupal\Core\Routing\RouteProvider;
+use Drupal\Core\State\StateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * AuthZero Settings Form class.
  */
-class AuthZeroSettingsForm extends ConfigFormBase {
+class AuthZeroSettingsForm extends FormBase {
 
   /**
-   * Instance of the Drupal\Core\Routing\RouteProvider.
+   * Instance of Drupal\Core\Routing\RouteProvider.
    *
    * @var \Drupal\Core\Routing\RouteProvider
    */
-  protected $routeProvider;
+  protected RouteProvider $routeProvider;
 
   /**
-   * {@inheritdoc}
+   * Instance of Drupal\Core\State\StateInterface.
+   *
+   * @var \Drupal\Core\State\StateInterface
    */
-  protected function getEditableConfigNames(): array {
-    return [
-      'authzero.settings',
-    ];
-  }
+  protected StateInterface $state;
+
+  /**
+   * Instance of Drupal\Core\Messenger\Messenger.
+   *
+   * @var \Drupal\Core\Messenger\Messenger
+   */
+  protected Messenger $showMessage;
 
   /**
    * {@inheritdoc}
@@ -41,6 +49,8 @@ class AuthZeroSettingsForm extends ConfigFormBase {
     // Instantiates this form class.
     $instance = parent::create($container);
     $instance->routeProvider = $container->get('router.route_provider');
+    $instance->state = $container->get('state');
+    $instance->showMessage = $container->get('messenger');
     return $instance;
   }
 
@@ -48,40 +58,61 @@ class AuthZeroSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $config = $this->config('authzero.settings');
     $form['domain'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Domain'),
       '#description' => $this->t('Domain added in the Application page on auth0 platform.'),
-      '#default_value' => $config->get('domain'),
+      '#default_value' => $this->state->get('authzero.domain'),
       '#required' => TRUE,
     ];
     $form['client_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Client Id'),
       '#description' => $this->t('Client Id associated with the Application.'),
-      '#default_value' => $config->get('client_id'),
+      '#default_value' => $this->state->get('authzero.client_id'),
       '#required' => TRUE,
     ];
     $form['client_secret'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => $this->t('Client Secret'),
       '#description' => $this->t('Client Secret associated with the Application.'),
-      '#default_value' => $config->get('client_secret'),
+      '#default_value' => $this->state->get('authzero.client_secret'),
       '#required' => TRUE,
     ];
-    $form['redirect_uri'] = [
+    $form['cookie_secret'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Redirect URI'),
-      '#description' => $this->t('The URI to redirect, after successfully authenticated by auth0 platform.'),
-      '#default_value' => $config->get('redirect_uri') ?? \Drupal::request()->getSchemeAndHttpHost() . '/auth0/callback',
+      '#title' => $this->t('Cookie Secret'),
+      '#description' => $this->t('A long secret value used to encrypt the session cookie.'),
+      '#default_value' => $this->state->get('authzero.cookie_secret'),
+      '#suffix' => <<<STR
+<div class="messages messages--warning">
+  <span>You can generate a suitable string by running "openssl rand -hex 32" in your terminal.</span>
+</div>
+STR,
       '#required' => TRUE,
+    ];
+    $siteHost = \Drupal::request()->getSchemeAndHttpHost();
+    $form['callback_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Callback URI'),
+      '#description' => $this->t('The URI to redirect, after successfully authenticated by auth0 platform. This route will actually
+        get the user information from auth0 and the authenticate/create the user in the Drupal system.'),
+      '#default_value' => $this->state->get('authzero.callback_url') ?? "$siteHost/web/auth0/callback",
+      '#disabled' => TRUE,
     ];
     $form['post_login_route'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Route name'),
-      '#description' => $this->t('Name of the route to redirect after login.'),
-      '#default_value' => $config->get('post_login_route') ?? '<front>',
+      '#title' => $this->t('Post login route name'),
+      '#description' => $this->t('Path of the route to redirect after login.'),
+      '#default_value' => $this->state->get('authzero.post_login_route') ?? '<front>',
+      '#required' => TRUE,
+    ];
+    $form['post_logout_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Post logout URI (RETURN_TO path)'),
+      '#description' => $this->t('Path of the route to redirect after logout from drupal. Make sure this value matches
+        the "Allowed logout URL" value in auth0.com application setting.'),
+      '#default_value' => $this->state->get('authzero.post_logout_url') ?? $siteHost,
       '#required' => TRUE,
     ];
     $form['override_logout'] = [
@@ -94,13 +125,20 @@ class AuthZeroSettingsForm extends ConfigFormBase {
 STR,
       '#suffix' => <<<STR
 <div class="messages messages--warning">
-  <strong>Do not forget to rebuild routes by clearing caches on checking this option.</strong>
+  <span>Do not forget to rebuild routes by clearing caches on checking this option.</span>
 </div>
 STR,
-      '#default_value' => $config->get('override_logout') ?? 0,
+      '#default_value' => $this->state->get('authzero.override_logout') ?? 0,
       '#required' => FALSE,
     ];
-    return parent::buildForm($form, $form_state);
+    $form['actions'] = [
+      '#type' => 'actions',
+      'submit' => [
+        '#type' => 'submit',
+        '#value' => $this->t('Save'),
+      ],
+    ];
+    return $form;
   }
 
   /**
@@ -121,19 +159,23 @@ STR,
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    parent::submitForm($form, $form_state);
     $postLoginRoute = $this->routeProvider->getRouteByName(
       $form_state->getValue('post_login_route')
     );
-    $this->config('authzero.settings')
-      ->set('domain', $form_state->getValue('domain'))
-      ->set('client_id', $form_state->getValue('client_id'))
-      ->set('client_secret', $form_state->getValue('client_secret'))
-      ->set('callback_url', $form_state->getValue('redirect_uri'))
-      ->set('post_login_route', $form_state->getValue('post_login_route'))
-      ->set('post_login_url', $postLoginRoute->getPath())
-      ->set('override_logout', $form_state->getValue('override_logout'))
-      ->save();
+    $this->state->setMultiple(
+      [
+        'authzero.callback_url' => $form_state->getValue('callback_url'),
+        'authzero.client_id' => $form_state->getValue('client_id'),
+        'authzero.client_secret' => $form_state->getValue('client_secret'),
+        'authzero.cookie_secret' => $form_state->getValue('cookie_secret'),
+        'authzero.domain' => $form_state->getValue('domain'),
+        'authzero.post_login_route' => $form_state->getValue('post_login_route'),
+        'authzero.post_login_url' => $postLoginRoute->getPath(),
+        'authzero.post_logout_url' => $form_state->getValue('post_logout_url'),
+        'authzero.override_logout' => $form_state->getValue('override_logout'),
+      ]
+    );
+    $this->showMessage->addStatus($this->t('Auth0 account settings saved successfully.'));
   }
 
 }
