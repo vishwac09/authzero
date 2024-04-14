@@ -97,7 +97,7 @@ STR,
       '#title' => $this->t('Callback URI'),
       '#description' => $this->t('The URI to redirect, after successfully authenticated by auth0 platform. This route will actually
         get the user information from auth0 and the authenticate/create the user in the Drupal system.'),
-      '#default_value' => $this->state->get('authzero.callback_url') ?? "$siteHost/web/auth0/callback",
+      '#default_value' => $this->state->get('authzero.callback_url') ?? "$siteHost/auth0/callback",
       '#disabled' => TRUE,
     ];
     $form['post_login_route'] = [
