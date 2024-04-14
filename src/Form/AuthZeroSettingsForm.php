@@ -62,28 +62,28 @@ class AuthZeroSettingsForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Domain'),
       '#description' => $this->t('Domain added in the Application page on auth0 platform.'),
-      '#default_value' => $this->state->get('domain'),
+      '#default_value' => $this->state->get('authzero.domain'),
       '#required' => TRUE,
     ];
     $form['client_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Client Id'),
       '#description' => $this->t('Client Id associated with the Application.'),
-      '#default_value' => $this->state->get('client_id'),
+      '#default_value' => $this->state->get('authzero.client_id'),
       '#required' => TRUE,
     ];
     $form['client_secret'] = [
       '#type' => 'password',
       '#title' => $this->t('Client Secret'),
       '#description' => $this->t('Client Secret associated with the Application.'),
-      '#default_value' => $this->state->get('client_secret'),
+      '#default_value' => $this->state->get('authzero.client_secret'),
       '#required' => TRUE,
     ];
     $form['cookie_secret'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Cookie Secret'),
       '#description' => $this->t('A long secret value used to encrypt the session cookie.'),
-      '#default_value' => $this->state->get('cookie_secret'),
+      '#default_value' => $this->state->get('authzero.cookie_secret'),
       '#suffix' => <<<STR
 <div class="messages messages--warning">
   <span>You can generate a suitable string by running "openssl rand -hex 32" in your terminal.</span>
@@ -94,17 +94,17 @@ STR,
     $siteHost = \Drupal::request()->getSchemeAndHttpHost();
     $form['callback_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Redirect URI'),
+      '#title' => $this->t('Callback URI'),
       '#description' => $this->t('The URI to redirect, after successfully authenticated by auth0 platform. This route will actually
         get the user information from auth0 and the authenticate/create the user in the Drupal system.'),
-      '#default_value' => $this->state->get('callback_url') ?? $siteHost . '/auth0/callback',
+      '#default_value' => $this->state->get('authzero.callback_url') ?? "$siteHost/web/auth0/callback",
       '#disabled' => TRUE,
     ];
     $form['post_login_route'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Post login route name'),
       '#description' => $this->t('Path of the route to redirect after login.'),
-      '#default_value' => $this->state->get('post_login_route') ?? '<front>',
+      '#default_value' => $this->state->get('authzero.post_login_route') ?? '<front>',
       '#required' => TRUE,
     ];
     $form['post_logout_url'] = [
@@ -112,7 +112,7 @@ STR,
       '#title' => $this->t('Post logout URI (RETURN_TO path)'),
       '#description' => $this->t('Path of the route to redirect after logout from drupal. Make sure this value matches
         the "Allowed logout URL" value in auth0.com application setting.'),
-      '#default_value' => $this->state->get('post_logout_url') ?? $siteHost,
+      '#default_value' => $this->state->get('authzero.post_logout_url') ?? $siteHost,
       '#required' => TRUE,
     ];
     $form['override_logout'] = [
@@ -128,7 +128,7 @@ STR,
   <span>Do not forget to rebuild routes by clearing caches on checking this option.</span>
 </div>
 STR,
-      '#default_value' => $this->state->get('override_logout') ?? 0,
+      '#default_value' => $this->state->get('authzero.override_logout') ?? 0,
       '#required' => FALSE,
     ];
     $form['actions'] = [
@@ -164,18 +164,18 @@ STR,
     );
     $this->state->setMultiple(
       [
-        'callback_url' => $form_state->getValue('callback_url'),
-        'client_id' => $form_state->getValue('client_id'),
-        'client_secret' => $form_state->getValue('client_secret'),
-        'cookie_secret' => $form_state->getValue('cookie_secret'),
-        'domain' => $form_state->getValue('domain'),
-        'post_login_route' => $form_state->getValue('post_login_route'),
-        'post_login_url' => $postLoginRoute->getPath(),
-        'post_logout_url' => $form_state->getValue('post_logout_url'),
-        'override_logout' => $form_state->getValue('override_logout'),
+        'authzero.callback_url' => $form_state->getValue('callback_url'),
+        'authzero.client_id' => $form_state->getValue('client_id'),
+        'authzero.client_secret' => $form_state->getValue('client_secret'),
+        'authzero.cookie_secret' => $form_state->getValue('cookie_secret'),
+        'authzero.domain' => $form_state->getValue('domain'),
+        'authzero.post_login_route' => $form_state->getValue('post_login_route'),
+        'authzero.post_login_url' => $postLoginRoute->getPath(),
+        'authzero.post_logout_url' => $form_state->getValue('post_logout_url'),
+        'authzero.override_logout' => $form_state->getValue('override_logout'),
       ]
     );
-    $this->showMessage->addStatus($this->t('Auth0 account Settings saved successfully'));
+    $this->showMessage->addStatus($this->t('Auth0 account settings saved successfully.'));
   }
 
 }

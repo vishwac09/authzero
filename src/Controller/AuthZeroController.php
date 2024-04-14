@@ -52,44 +52,22 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
   /**
    * {@inheritDoc}
    */
-  public function login(Request $request) {
-    // Check if the current logged-in user is not anonymous.
-    if ($this->currentUser->isAnonymous()) {
-      // Check the error query param is set, if yes send it to
-      // auth0 universal login page in URL.
-      $query = $request->query->get('error');
-      $errorCode = $query ?? '';
-      // Get the instance of Auth0.
-      $auth0 = $this->authZeroService->getInstance();
-      $additionalParams = $this->authZeroService->getExtraParams($errorCode);
-      return new TrustedRedirectResponse(
-        $auth0->login(NULL, $additionalParams),
-      );
-    }
-    else {
-      return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public function auth0Callback(Request $request): RedirectResponse {
     // When the user serssion has not been started in drupal.
     if ($this->currentUser->isAnonymous()) {
       $errorCode = $request->query->get('error') ?? 'unauthorized';
+      $code = $request->query->get('code') ?? NULL;
+      $state = $request->query->get('state') ?? NULL;
       try {
-        $auth0 = $this->authZeroService->getInstance();
-        $auth0->exchange();
-        $user = $auth0->getUser();
-        if (isset($user['email'])) {
+        $user = $state && $code ? $this->authZeroService->getLoggedInUserDetails() : NULL;
+        if ($user && isset($user['email'])) {
           \Drupal::moduleHandler()->invokeAll('authzero_pre_validate_user', [$user]);
-          /** @var \Drupal\user\UserInterface $user */
+          /** @var \Drupal\user\UserInterface | false $user */
           $user = user_load_by_mail($user['email']);
           if (!empty($user)) {
             user_login_finalize($user);
             $this->logger->get('authzero')->info("User {$user->getInitialEmail()} successfully logged in.");
-            return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
+            return new RedirectResponse($this->authZeroService->getPostLoginRedirectUrl());
           }
           else {
             return $this->logoutUser('access_denied');
@@ -101,7 +79,36 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
       }
     }
     else {
-      return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
+      // If the user visits the callback url when there is an active session
+      // normally redirect the user to the postLoginREdirectLink.
+      return new RedirectResponse($this->authZeroService->getPostLoginRedirectUrl());
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function login(Request $request) {
+    // Check if the current logged-in user is not anonymous.
+    if ($this->currentUser->isAnonymous()) {
+      // Check the error query param is set, if yes send it to
+      // auth0 universal login page in URL.
+      $query = $request->query->get('error');
+      $errorCode = $query ?? '';
+      // Error handler to hadle unseen cases.
+      try {
+        // Get the Auth0 login url and redirect the user to Authenticate.
+        $loginURL = $this->authZeroService->initiateLogin($errorCode);
+        return new TrustedRedirectResponse($loginURL);
+      }
+      catch (\Exception $e) {
+        // Return the user to homepage in case of error.
+        return new RedirectResponse('/');
+      }
+    }
+    else {
+      // Do not allow logged in user to navigate to the Auth0 login page.
+      return new RedirectResponse($this->authZeroService->getPostLoginRedirectUrl());
     }
   }
 
@@ -114,7 +121,7 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
       return $this->logoutUser();
     }
     else {
-      return new RedirectResponse($this->authZeroService->getPostLoginRedirectLink());
+      return new RedirectResponse($this->authZeroService->getPostLoginRedirectUrl());
     }
   }
 
@@ -122,11 +129,10 @@ class AuthZeroController extends ControllerBase implements AuthZeroInterface {
    * {@inheritDoc}
    */
   public function logoutUser($error = NULL): TrustedRedirectResponse {
-    // Get the instance of Auth0.
-    $auth0 = $this->authZeroService->getInstance();
-    $additionalParams = $this->authZeroService->getExtraParams($error);
-    $returnToUrl = $this->authZeroService->getPostLogoutRedirectLink();
-    return new TrustedRedirectResponse($auth0->logout($returnToUrl, $additionalParams));
+    $logoutUrl = $this->authZeroService->initiateLogout();
+    return new TrustedRedirectResponse(
+      $logoutUrl
+    );
   }
 
 }

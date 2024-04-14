@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "auth0/auth0-php": "8.10.0"
+        "auth0/auth0-php": "~8.10.0"
     },
     "config": {
         "allow-plugins": {

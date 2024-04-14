@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function authzero_uninstall() {
+  $keys = [
+    'authzero.callback_url',
+    'authzero.client_id',
+    'authzero.client_secret',
+    'authzero.cookie_secret',
+    'authzero.domain',
+    'authzero.post_login_route',
+    'authzero.post_login_url',
+    'authzero.post_logout_url',
+    'authzero.override_logout',
+  ];
+  \Drupal::state()->deleteMultiple($keys);
+}
